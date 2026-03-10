@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VexNet Webhook Spammer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background: #1a0000;
+      color: #ff4d4d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 30px;
+      user-select: none;
+    }
+
+    /* تعديل حجم اللوجو */
+    .spider-logo {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ff1a1a;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      text-shadow: 0 0 10px #ff1a1a;
+      margin: 0;
+    }
+
+    .subtext {
+      font-size: 1rem;
+      color: #ff9999;
+      text-shadow: 0 0 6px #ff4d4d;
+      user-select: text;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .subtext a {
+      color: #ff9999;
+      text-decoration: underline;
+      transition: color 0.3s ease;
+    }
+
+    .subtext a:hover {
+      color: #ff4d4d;
+    }
+
+    form {
+      background: #330000;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #ff1a1a;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #ff6666;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      background: #4d0000;
+      color: #ffcccc;
+      box-shadow: inset 0 0 5px #ff1a1a;
+      transition: background-color 0.3s ease;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+      background: #660000;
+      outline: none;
+      box-shadow: 0 0 8px #ff3333;
+      color: #fff;
+    }
+
+    textarea {
+      min-height: 100px;
+    }
+
+    input[type="number"] {
+      max-width: 100px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      background-color: #ff1a1a;
+      border: none;
+      border-radius: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ff1a1a;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background-color: #cc0000;
+      box-shadow: 0 0 25px #ff4d4d;
+    }
+
+    #status {
+      margin-top: 20px;
+      min-height: 60px;
+      background: #330000;
+      padding: 15px;
+      border-radius: 10px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #ff9999;
+      white-space: pre-wrap;
+      box-shadow: inset 0 0 10px #ff1a1a;
+      user-select: text;
+    }
+
+    @media (max-width: 640px) {
+      form {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://cdn.discordapp.com/icons/1456811830776172648/7b9e03f8bde263bd3596deb15722926c.webp?size=1024" alt="VexNet Logo" class="spider-logo" />
+    <h1>RTLS Webhook Spammer</h1>
+    <div class="subtext">
+      <a href="https://dsc.gg/lmlj" target="_blank" rel="noopener noreferrer">discord.gg/lmlj</a>
+      <span style="color: #ff4d4d;">•</span>
+      <span>By AbuLaban</span>
+    </div>
+  </header>
+
+  <form id="webhookForm" autocomplete="off" spellcheck="false">
+    <label for="webhookUrl">رابط Webhook (Discord):</label>
+    <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..." required />
+
+    <label for="username">اسم المستخدم (اختياري):</label>
+    <input type="text" id="username" placeholder="اسم المستخدم الذي سيظهر" value="RTLS Bot" />
+
+    <label for="avatarUrl">رابط صورة الأفاتار (اختياري):</label>
+    <input type="text" id="avatarUrl" placeholder="https://example.com/avatar.png" />
+
+    <label for="message">الرسالة:</label>
+    <textarea id="message" placeholder="اكتب رسالتك هنا..." required></textarea>
+
+    <label for="count">عدد مرات الإرسال:</label>
+    <input type="number" id="count" value="1" min="1" max="20" required />
+
+    <button type="submit" id="sendBtn">إرسال الرسالة</button>
+
+    <div id="status"></div>
+  </form>
+
+  <script>
+    const form = document.getElementById('webhookForm');
+    const statusDiv = document.getElementById('status');
+    const sendBtn = document.getElementById('sendBtn');
+
+    async function sendWebhookMessage(webhookUrl, message, username, avatarUrl) {
+      const payload = { content: message };
+      if (username) payload.username = username;
+      if (avatarUrl) payload.avatar_url = avatarUrl;
+
+      try {
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        return response.ok;
+      } catch {
+        return false;
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const webhookUrl = document.getElementById('webhookUrl').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const avatarUrl = document.getElementById('avatarUrl').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const count = parseInt(document.getElementById('count').value);
+
+      statusDiv.textContent = '';
+
+      if (!webhookUrl) {
+        statusDiv.textContent = 'يرجى إدخال رابط Webhook صالح.';
+        return;
+      }
+      if (!message) {
+        statusDiv.textContent = 'يرجى إدخال رسالة لإرسالها.';
+        return;
+      }
+      if (count < 1 || count > 20) {
+        statusDiv.textContent = 'عدد مرات الإرسال يجب أن يكون بين 1 و 20.';
+        return;
+      }
+
+      sendBtn.disabled = true;
+      statusDiv.textContent = 'جاري الإرسال...\n';
+
+      for (let i = 1; i <= count; i++) {
+        const success = await sendWebhookMessage(webhookUrl, message, username, avatarUrl);
+        if (success) {
+          statusDiv.textContent += `تم إرسال الرسالة رقم ${i} بنجاح.\n`;
+        } else {
+          statusDiv.textContent += `فشل في إرسال الرسالة رقم ${i}.\n`;
+        }
+      }
+
+      statusDiv.textContent += 'انتهى الإرسال.';
+      sendBtn.disabled = false;
+    });
+  </script>
+</body>
+</html>
